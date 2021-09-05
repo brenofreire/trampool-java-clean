@@ -1,12 +1,13 @@
 package com.trampool;
 
-import com.trampool.domain.entities.Negotiation;
-import com.trampool.domain.entities.ServiceCategory;
+import java.util.Optional;
+
 import com.trampool.domain.entities.user.User;
-import com.trampool.domain.entities.worker.Worker;
 import com.trampool.domain.usecases.factories.UserFactory;
-import com.trampool.domain.usecases.factories.WorkerFactory;
 import com.trampool.domain.usecases.validations.ValidationException;
+import com.trampool.infra.models.UserAccount;
+import com.trampool.infra.repositories.user.account.CreateUserInMemory;
+import com.trampool.infra.repositories.user.account.UserAccountInMemoryRepository;
 
 /**
  * Hello world!
@@ -15,14 +16,15 @@ import com.trampool.domain.usecases.validations.ValidationException;
 public class App {
     public static void main( String[] args ) throws ValidationException {
         try {
-            Worker worker = new WorkerFactory("Workerini", "worke-rini", "pass-werini").create();
-            User user = new UserFactory("Userini", "use-rini", "use-erini").create();
-            ServiceCategory serviceCategory = new ServiceCategory("eltricity", "Elétrica");
+            User user = new UserFactory("User teste", "use-teste", "super-secret").create();
 
-            Negotiation negotiation = new Negotiation(user, worker, serviceCategory);
+            UserAccountInMemoryRepository database = new UserAccountInMemoryRepository();
 
+            UserAccount userAccount = new CreateUserInMemory(user, database).create();
 
-            System.out.println(negotiation.getIdentifier());
+            Optional<UserAccount> search = database.getUserAccountByUsername(userAccount.getUsername());
+
+            System.out.println(search.get().getName());
         } catch (ValidationException e) {
             System.out.println(e.getMessage());
         }
